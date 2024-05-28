@@ -9,12 +9,11 @@
 '''
 
 ''' [TODO] -
-        filled and outlined shapes
-        stroked or non-stroked outlines (if non-stroked, do filled)
+        Done: filled and outlined shapes
+        Not working: stroked or non-stroked outlines (if non-stroked, do filled)
         Done: triangles - ngon([3,1])
         Done: regular n-gons
-        doodles, as in the original rpsaver
-        checkboxes to turn the various choices on / off
+        Done: checkboxes to turn the various choices on / off
 '''
 
 import sys
@@ -35,6 +34,7 @@ from PyQt5.QtWidgets import (
     QGraphicsView,
     QHBoxLayout,
     QPushButton,
+    QCheckBox,
     QVBoxLayout,
     QWidget,
 )
@@ -43,6 +43,18 @@ from PyQt5.QtWidgets import (
 class Window(QWidget):
     def __init__(self):
         super().__init__()
+
+        self.shapeset = {
+            "Ellipse": self.ellipse,
+            "Rectangle": self.rect,
+            "Parallelogram": self.parallelogram,
+            "Quadrilateral": self.quadrilateral,
+            "Star": self.star,
+            "N-gon": self.ngon,
+            }
+
+        self.chkboxes = []
+        self.states = {}
 
         # set the window dimentions
         screen = app.primaryScreen()
@@ -56,21 +68,46 @@ class Window(QWidget):
         # Define our layout.
         vbox = QVBoxLayout()
 
+        vbox2 = QVBoxLayout()
+        for name in self.shapeset.keys():
+            ckbox = QCheckBox(name)
+            ckbox.setChecked(True)
+            ckbox.stateChanged.connect(self.chkboxstate)
+            self.chkboxes.append(ckbox)
+            self.states[name] = True
+            vbox2.addWidget(ckbox)
+        vbox.addLayout(vbox2)
+
+        vbox2 = QVBoxLayout()
+        for name in ("Outlines", "Filled"):
+            ckbox = QCheckBox(name)
+            ckbox.setChecked(True)
+            ckbox.stateChanged.connect(self.chkboxstate)
+            self.chkboxes.append(ckbox)
+            self.states[name] = True
+
+            vbox2.addWidget(ckbox)
+        vbox.addLayout(vbox2)
+
+        vbox2 = QVBoxLayout()
+
         strt = QPushButton("Start")
         strt.clicked.connect(self.strtTimer)
-        vbox.addWidget(strt)
+        vbox2.addWidget(strt)
 
         stop = QPushButton("Stop")
         stop.clicked.connect(self.stopTimer)
-        vbox.addWidget(stop)
+        vbox2.addWidget(stop)
 
         clear = QPushButton("Clear")
         clear.clicked.connect(self.clearGraphic)
-        vbox.addWidget(clear)
+        vbox2.addWidget(clear)
 
         end = QPushButton("Exit")
         end.clicked.connect(self.endprogram)
-        vbox.addWidget(end)
+        vbox2.addWidget(end)
+
+        vbox.addLayout(vbox2)
 
         view = QGraphicsView(self.scene)
         view.setRenderHint(QPainter.Antialiasing)
@@ -95,33 +132,70 @@ class Window(QWidget):
     def stopTimer(self):
         self.timer.stop()
 
+    def chkboxstate(self):
+        for cb in self.chkboxes:
+            name = cb.text()
+            state = cb.isChecked()
+            if self.states[name] != state:
+                self.states[name] = state
+
     def newItem(self):
-        item = random.choice([
-            self.ellipse,
-            self.rect,
-            self.parallelogram,
-            self.quadrilateral,
-            self.star,
-            self.ngon,
-            ])()
+        possibles = {
+                    "Ellipse": self.ellipse,
+                   "Rectangle": self.rect,
+                    "Parallelogram": self.parallelogram,
+                    "Quadrilateral": self.quadrilateral,
+                    "Star": self.star,
+                    }
+        shapes = [y for x, y in possibles.items() if self.states[x]]
+        item = random.choice(shapes)()
         itemloc = (random.randint(0, self.workingWidth),random.randint(0, self.workingHeight))
         item.setPos(*itemloc)
-        pen = QPen(random.choice([
-            Qt.red,
-            Qt.blue,
-            Qt.green,
-            Qt.white,
-            Qt.cyan,
-            Qt.magenta,
-            Qt.yellow,
-            Qt.darkRed,
-            Qt.darkGreen,
-            Qt.darkBlue,
-            Qt.darkCyan,
-            ]))
-        pen.setWidth(1)
-        item.setPen(pen)
-        item.setRotation(random.randint(0,360))
+        if self.states["Outlines"]:
+            pen = QPen(random.choice([
+                Qt.red,
+                Qt.blue,
+                Qt.green,
+                Qt.white,
+                Qt.cyan,
+                Qt.darkCyan,
+                Qt.magenta,
+                Qt.darkMagenta,
+                Qt.yellow,
+                Qt.darkYellow,
+                Qt.darkRed,
+                Qt.darkGreen,
+                Qt.darkBlue,
+                Qt.darkCyan,
+                Qt.gray,
+                Qt.darkGray,
+                Qt.lightGray,
+                ]))
+            pen.setWidth(1)
+            item.setPen(pen)
+            if self.states["Filled"]:
+                if random.random() > 0.5:
+                    brush = QBrush(random.choice([
+                        Qt.red,
+                        Qt.blue,
+                        Qt.green,
+                        Qt.white,
+                        Qt.cyan,
+                        Qt.darkCyan,
+                        Qt.magenta,
+                        Qt.darkMagenta,
+                        Qt.yellow,
+                        Qt.darkYellow,
+                        Qt.darkRed,
+                        Qt.darkGreen,
+                        Qt.darkBlue,
+                        Qt.darkCyan,
+                        Qt.gray,
+                        Qt.darkGray,
+                        Qt.lightGray,
+                        ]))
+                    item.setBrush(brush)
+            item.setRotation(random.randint(0,360))
         self.scene.addItem(item)
 
     def ellipse(self):
