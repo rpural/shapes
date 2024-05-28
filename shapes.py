@@ -8,6 +8,15 @@
     various shapes, especially stars.
 '''
 
+''' [TODO] -
+        filled and outlined shapes
+        stroked or non-stroked outlines (if non-stroked, do filled)
+        Done: triangles - ngon([3,1])
+        Done: regular n-gons
+        doodles, as in the original rpsaver
+        checkboxes to turn the various choices on / off
+'''
+
 import sys
 
 import random
@@ -26,7 +35,6 @@ from PyQt5.QtWidgets import (
     QGraphicsView,
     QHBoxLayout,
     QPushButton,
-    QSlider,
     QVBoxLayout,
     QWidget,
 )
@@ -94,6 +102,7 @@ class Window(QWidget):
             self.parallelogram,
             self.quadrilateral,
             self.star,
+            self.ngon,
             ])()
         itemloc = (random.randint(0, self.workingWidth),random.randint(0, self.workingHeight))
         item.setPos(*itemloc)
@@ -133,13 +142,14 @@ class Window(QWidget):
     def quadrilateral(self):
         itemsize = (random.randint(10, 150), random.randint(10, 150))
         shift = random.randint(10,50)
+        if shift > itemsize[0] // 2:
+            shift = itemsize[0] - shift
         polygon = QPolygonF([QPointF(shift, 0), QPointF(itemsize[0]-shift, 0),
              QPointF(itemsize[0],itemsize[1]),QPointF(0,itemsize[1])])
         return QGraphicsPolygonItem(polygon)
 
     def star(self):
         pattern = random.choice([
-            (3,1),
             (5,2),
             (6,2),
             (7,3),
@@ -152,6 +162,26 @@ class Window(QWidget):
             (11,5),
             (12,5),
         ])
+        return self._drawShape(pattern)
+
+    def ngon(self):
+        pattern = random.choice([
+            (3,1),
+            (4,1),
+            (5,1),
+            (6,1),
+            (7,1),
+            (8,1),
+            (9,1),
+            (10,1),
+            (11,1),
+            (12,1),
+        ])
+        return self._drawShape(pattern)
+
+
+
+    def _drawShape(self, pattern):
         numpoints = pattern[0]
         space = ((2 * math.pi) / numpoints) * pattern[1]
         radius = random.randint(30, 150)
