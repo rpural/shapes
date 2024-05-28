@@ -14,4 +14,7 @@ order. For instance, a "normal" 5-point star is represented by the Schläfli sym
 means that you divide a circle into 5 equi-distant points, and then connect every other point
 until you get back to the starting point.
 
-[TODO] - implement an algolrythm for an irregular star using points on two semi-concentric circles.
+The type(s) of shapes to be drawn are selectable via checkboxes, the process can be stopped and started,
+and the window can be cleared so that it is less crowded again.
+
+[TODO] - implement an algorithm for an irregular star using points on two semi-concentric circles.
