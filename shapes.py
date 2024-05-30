@@ -22,6 +22,8 @@ import random
 
 import math
 
+import itertools
+
 from PyQt5.QtCore import Qt, QTimer, QPointF
 from PyQt5.QtGui import QBrush, QPainter, QPen, QPolygonF
 from PyQt5.QtWidgets import (
@@ -50,6 +52,7 @@ class Window(QWidget):
             "Parallelogram": self.parallelogram,
             "Quadrilateral": self.quadrilateral,
             "Star": self.star,
+            "Star2": self.star2,
             "N-gon": self.ngon,
             }
 
@@ -146,6 +149,8 @@ class Window(QWidget):
                     "Parallelogram": self.parallelogram,
                     "Quadrilateral": self.quadrilateral,
                     "Star": self.star,
+                    "Star2": self.star2,
+                    "N-gon": self.ngon,
                     }
         shapes = [y for x, y in possibles.items() if self.states[x]]
         item = random.choice(shapes)()
@@ -194,6 +199,14 @@ class Window(QWidget):
                         Qt.darkGray,
                         Qt.lightGray,
                         ]))
+                    brush.setStyle(random.choice([
+                        Qt.SolidPattern,
+                        Qt.Dense1Pattern,
+                        Qt.Dense2Pattern,
+                        Qt.Dense7Pattern,
+                        Qt.NoBrush,
+                        Qt.DiagCrossPattern,
+                    ]))
                     item.setBrush(brush)
             item.setRotation(random.randint(0,360))
         self.scene.addItem(item)
@@ -265,6 +278,19 @@ class Window(QWidget):
             points.append(QPointF(radius * math.cos(i*space), radius * math.sin(i*space)))
         return QGraphicsPolygonItem(QPolygonF(points))
 
+    def star2(self):
+        numpoints = random.randint(3, 12)
+        space = (2 * math.pi) / numpoints
+        radius1, radius2 = sorted([random.randint(30, 150), random.randint(30, 150)])
+        shift = (random.uniform(space / 40, space / 3)) * random.choice((-1,1))
+        outerpoints = []
+        innerpoints = []
+        for i in range(numpoints):
+            outerpoints.append(QPointF(radius1 * math.cos(i*space), radius1 * math.sin(i*space)))
+            innerpoints.append(QPointF(radius2 * math.cos(i*space+shift), radius2 * math.sin(i*space+shift)))
+        points = list(itertools.chain.from_iterable(zip(outerpoints, innerpoints)))
+        return QGraphicsPolygonItem(QPolygonF(points))
+
     def clearGraphic(self):
         self.scene.clear()
 
@@ -276,9 +302,13 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     screen = app.primaryScreen()
-    max_rect = screen.availableGeometry()
+    if screen:
+        max_rect = screen.availableGeometry()
+    else:
+        max_rect = (500, 200)
 
     w = Window()
     w.show()
 
     app.exec()
+
