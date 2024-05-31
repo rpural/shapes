@@ -17,4 +17,4 @@ until you get back to the starting point.
 The type(s) of shapes to be drawn are selectable via checkboxes, the process can be stopped and started,
 and the window can be cleared so that it is less crowded again.
 
-[TODO] - implement an algorithm for an irregular star using points on two semi-concentric circles.
+[TODO] - add to irregular star to use two semi-concentric circles.
