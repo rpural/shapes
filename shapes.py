@@ -199,12 +199,13 @@ class Window(QWidget):
                         Qt.darkGray,
                         Qt.lightGray,
                         ]))
+                    colorused = brush.color()
+                    colorused.setAlpha(100)
+                    brush.setColor(colorused)
                     brush.setStyle(random.choice([
                         Qt.SolidPattern,
                         Qt.Dense1Pattern,
                         Qt.Dense2Pattern,
-                        Qt.Dense7Pattern,
-                        Qt.NoBrush,
                         Qt.DiagCrossPattern,
                     ]))
                     item.setBrush(brush)
@@ -279,14 +280,17 @@ class Window(QWidget):
         return QGraphicsPolygonItem(QPolygonF(points))
 
     def star2(self):
-        numpoints = random.randint(3, 12)
+        numpoints = random.randint(5, 12)
         space = (2 * math.pi) / numpoints
         radius1, radius2 = sorted([random.randint(30, 150), random.randint(30, 150)])
-        shift = (random.uniform(space / 40, space / 3)) * random.choice((-1,1))
+        shift = (random.uniform(space / 40, space / 3)) # * random.choice((-1,1))
+        rshift = random.uniform(0, radius1 / 3)
         outerpoints = []
         innerpoints = []
         for i in range(numpoints):
-            outerpoints.append(QPointF(radius1 * math.cos(i*space), radius1 * math.sin(i*space)))
+            rshiftt = radius1 + (rshift * random.choice((-1,1)))
+            outerpoints.append(QPointF((radius1+rshiftt) * math.cos(i*space),
+                                       (radius1+rshiftt) * math.sin(i*space)))
             innerpoints.append(QPointF(radius2 * math.cos(i*space+shift), radius2 * math.sin(i*space+shift)))
         points = list(itertools.chain.from_iterable(zip(outerpoints, innerpoints)))
         return QGraphicsPolygonItem(QPolygonF(points))
@@ -311,4 +315,3 @@ if __name__ == "__main__":
     w.show()
 
     app.exec()
-
